@@ -1,13 +1,4 @@
-const { Pool } = require('pg');
-const properties = require('./json/properties.json');
-const users = require('./json/users.json');
-
-const pool = new Pool({
-  user: 'vagrant',
-  password: '123',
-  host: 'localhost',
-  database: 'lightbnb'
-})
+const db = require('../db/index');
 
 /// Users
 
@@ -24,7 +15,7 @@ const getUserWithEmail = function(email) {
   LIMIT 1;
   `;
   const values = [email];
-  return pool.query(queryString, values)
+  return db.query(queryString, values)
   .then(res => {
     if (res.rows[0]) {
       return res.rows[0];
@@ -48,7 +39,7 @@ const getUserWithId = function(id) {
   LIMIT 1;
   `;
   const values = [id];
-  return pool.query(queryString, values)
+  return db.query(queryString, values)
   .then(res => {
     if (res.rows[0]) {
       return res.rows[0];
@@ -73,7 +64,7 @@ const addUser =  function(user) {
   RETURNING *;
   `;
   const values = [name, email, password];
-  return pool.query(queryString, values);
+  return db.query(queryString, values);
 }
 exports.addUser = addUser;
 
@@ -97,7 +88,7 @@ const getAllReservations = function(guest_id, limit = 10) {
     LIMIT $2;
   `;
   const values = [guest_id, limit];
-  return pool.query(queryString, values)
+  return db.query(queryString, values)
   .then(res => res.rows);
 }
 exports.getAllReservations = getAllReservations;
@@ -172,7 +163,7 @@ const getAllProperties = function(options, limit = 10) {
   console.log(queryString, queryParams);
 
   // 6
-  return pool.query(queryString, queryParams)
+  return db.query(queryString, queryParams)
   .then(res => res.rows);
 }
 exports.getAllProperties = getAllProperties;
@@ -184,10 +175,6 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  // const propertyId = Object.keys(properties).length + 1;
-  // property.id = propertyId;
-  // properties[propertyId] = property;
-  // return Promise.resolve(property);
   const { owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms } = property;
   const queryString = `
   INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms)
@@ -195,6 +182,6 @@ const addProperty = function(property) {
   RETURNING *;
   `;
   const values = [owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms];
-  return pool.query(queryString, values);
+  return db.query(queryString, values);
 }
 exports.addProperty = addProperty;
